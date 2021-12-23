@@ -1,27 +1,35 @@
 import { galleryItems } from "./gallery-items.js";
 const gallery_js = document.querySelector(".gallery");
 const galleryMarkup = createGalleryMarkup(galleryItems);
+let instance;
 
 gallery_js.insertAdjacentHTML("beforeend", galleryMarkup);
-
 gallery_js.addEventListener("click", onImageClick);
 
 function onImageClick(evt) {
   evt.preventDefault();
-  evt.target.src = evt.target.dataset.source;
+  window.addEventListener("keydown", onEscapePress);
 
-  const instance = basicLightbox.create(`
-      <img src="${evt.target.src}" width="800" height="800">
-  `);
-
+  if (evt.target.nodeName !== "IMG") {
+    return;
+  }
+  instance = basicLightbox.create(`<img src="${evt.target.dataset.source}">`);
   instance.show();
+}
+
+function onEscapePress(evt) {
+  if (evt.code === "Escape") {
+    instance.close();
+    window.removeEventListener("keydown", onEscapePress);
+  }
+  console.log(evt);
 }
 
 function createGalleryMarkup() {
   return galleryItems
     .map(({ preview, description, original }) => {
       return `<div class="gallery__item">
-  <a class="gallery__link" href="">
+  <a class="gallery__link" href="${original}">
     <img
       class="gallery__image"
       src="${preview}"
